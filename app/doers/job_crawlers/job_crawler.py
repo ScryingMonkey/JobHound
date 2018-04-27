@@ -6,7 +6,6 @@ from app.models import JobProfile
 from app.models import JobOpportunity
 from app.services import LogService
 
-
 class JobCrawler:
     """Common class for holding methods useful for all crawlers.
 
