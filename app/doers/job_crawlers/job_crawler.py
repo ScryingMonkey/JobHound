@@ -7,7 +7,7 @@ from app.models import JobOpportunity
 from app.services import LogService
 
 
-class Crawler:
+class JobCrawler:
     """Common class for holding methods useful for all crawlers.
 
     Utilizes lxml.xpath queries yielding HtmlElements.
@@ -30,19 +30,23 @@ class Crawler:
         self.links = None 
         self.logLevel = logLevel
         
-        self.LOG = "\n[starting log : %s] \n" % time.strftime("%H:%M:%S")
+        self.LOG = "\n\n[starting log : %s] \n" % time.strftime("%H:%M:%S")
         self.todos = []
 
-        self.todos.append("Separate out Crawler() class.")
-        self.todos.append("Set up Crawler() to build baseUrl to crawl multiple urls.")
+        self.todos.append(colored.green("\n[X] Separate out Crawler() class."))
+        self.todos.append(colored.yellow("\n[ ] Set up Crawler() to build baseUrl to crawl multiple urls.")  + "/n")
 
-    def todo(self,s):
+    def todo(self,s,b=False):
+        if b:
+            s = colored.green("\n[X] %s" % s)
+        else:
+            s = colored.yellow("\n[ ] %s" % s)
         self.todos.append(s)
     
     def logTodos(self):
-        res = colored.yellow("\n\nTODOS:")
+        res = colored.yellow("\n\nTODOS: \n")
         for t in self.todos:
-            res += colored.yellow("\n[ ] %s" % t)
+            res += t
         self.addLog(res)
     
     # def queryXpath(self, xpathO,query):
@@ -59,7 +63,7 @@ class Crawler:
     
     def search(self, listToSearch, searchTerms):
         start = time.time() 
-        self.todo("Fix search().")        
+        self.todo("Fix search().",True)        
         res = ""
         res += "...searching list of length [%s] for searchTerms [%s]. \n" % (
                 len(listToSearch),searchTerms)
@@ -144,6 +148,7 @@ class Crawler:
                                 method_file,method_name,method_args,method_line))
 
     def getLog(self):
+        self.LOG += "\n\n"
         return self.LOG
 
     def timeElapsed(self, methodName, startTime):
@@ -184,9 +189,9 @@ class Crawler:
         self.addLog(res)
             
     def showList(self,name, showList,n=5):
-        res = "Showing %s %s of [%s].....................\n" % (n,type(showList[0]),name)
+        res = "Showing first %s %s of [%s].....................\n" % (n,type(showList[0]),name)
         for i,x in enumerate(showList):
-            res += "(%s) %s\n" % (i,x)
+            res += "[%s] %s\n" % (i,x)
             if i+1 >= n: break
         res += "... continues for %s items.\n" % len(showList)
         self.addLog(res)
@@ -198,10 +203,10 @@ class Crawler:
             return res
         else:
             res = "\n"
-            res += "Showing %s %s of [%s].....................\n" % (n,type(showLod[0]),name)
+            res += "Showing first %s %s of [%s].....................\n" % (n,type(showLod[0]),name)
             keys = showLod[0].keys()
             for i,d in enumerate(showLod):
-                res += 'd(%s): \n' % i
+                res += '[%s]: \n' % i
                 for k in keys:
                     res +='    k[%s] %s \n' % (k,d[k])
                 if i+1 >= n: break
@@ -258,74 +263,3 @@ class Crawler:
             print ""
             el = showUrl(test_url, queries)
             print "\n"  
-
-
-
-class JobCrawler(Crawler):
-    """Takes a job profile, crawls known job sources and returns a list of qualified leads."""
-    TEST_CLIST_CONFIG = {
-        'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
-        'jobTitlesFile': "CListJobTitles.txt",
-        'jobDetailsFile': "CListJobDetails.txt",
-        'jobQuery': '//a[@class="result-title hdrlnk"]'
-    }
-    
-    def buildCraigsListJobResults(self,titleDict):
-        """Takes in an HTMLELement of a Craig's List Job Listing and returns a dictionary"""
-        start = time.time()
-        CRAIGS_LIST_DESC_QUERY = '//section[@id="postingbody"]/text()'
-        title= titleDict['title']
-        url = titleDict['url']
-        xml = self.crawl(url)['tree']
-        desc = xml.xpath(CRAIGS_LIST_DESC_QUERY)[1].replace("\n","").strip()
-        elapsed = self.timeElapsed("buildCraigsListJobResults(jobElement)", start)
-        return {
-            'title':title,'url':url,'xml':xml,'desc':desc
-            }
-
-    def crawlCList(self, config=TEST_CLIST_CONFIG, searchTerms=['.']):
-        """Takes in a list of search terms and returns a list of job results from Craig's List"""
-        results = []
-        start = time.time()
-        self.todo("Set up git hub vc.")
-        # if we should crawl...
-        if False:
-            # Crawl clist url for titles.
-            self.todo("Date stamp crawl jsons.")
-            self.todo("Crawl only if file older than a specified date.")
-            jobData = self.crawl(
-                self.config['baseUrl'])['tree'].xpath(self.config['jobQuery'])
-            self.addLog('...crawl() yielded (%s) links.' % len(jobData))
-            # Convert crawl data to lod.
-            titles = [{'title':el.text_content(),'url':el.get('href')} for el in jobData] 
-            self.addLog('titles length (%s).' % len(titles))
-            # Write to json file.
-            self.saveToJsonFile(self.config['jobTitlesFile'], titles)
-            titles = []
-        else:
-            # Read json from file.
-            titles = self.readFromJsonFile(self.config['jobTitlesFile'])['data']
-            self.addLog("retrieved %s titles from file." % len(titles))
-            self.showLod("titles retrieved from file",titles, 5)
-
-        self.addLog("searching with searchTerms %s" % (searchTerms))
-        # Search data for matches to searchTerms.
-        matches = self.search([t['title'] for t in titles],searchTerms)
-        self.addLog('found %s matches from %s potential.' % (len(matches),len(titles)))
-        self.showList("...matches resulting from search",matches, 5)
-
-        self.todo("crawl urls of matching filtered matches and build job results.")
-        self.todo("write job results to file.")
-        self.todo("Code deep search method.")
-        # Crawl urls of matching filtered matches and build job results
-        if True:
-
-            self.saveToJsonFile(self.config['jobTitlesFile'], titles)
-        # results = []
-        # for i,t in enumerate(titles):
-        #     if t['title'] in matches:
-        #         results.append(self.buildCraigsListJobResults(t['url']))
-        # self.addLog('crawlCraigsList() yielded (%s) results.' % len(results)) 
-        elapsed = self.timeElapsed("crawlCraigsList(%s)" % (searchTerms), start)    
-        self.logTodos()
-        return results    
