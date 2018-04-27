@@ -1,0 +1,6 @@
+{
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_allDictKeysHaveValues": true, 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_crawlCraigsList": true, 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_jobDetailsFile": true, 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_jobDetailsFile": true
+}

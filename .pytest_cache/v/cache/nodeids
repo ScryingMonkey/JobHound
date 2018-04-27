@@ -1,0 +1,16 @@
+[
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_saveToJsonFile", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_readFromJsonFile", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_crawl", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_crawlData", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_crawlTime", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_searchOnDummyData", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_searchTimeOnDummyData", 
+  "app/doers/job_crawler_test.py::TestCrawler::()::test_searchOnLiveData", 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_crawlCraigsList", 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_allDictKeysHaveValues", 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_jobTitlesFile", 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_jobDetailsFile", 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_resultDictsContainCorrectTypes", 
+  "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_dumpLog"
+]
