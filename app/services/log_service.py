@@ -39,7 +39,7 @@ class LogService():
 
     def startLog(self, note =""):
         self.startTime = time.time()
-        self.LOG = "\n\n[%s] Starting Log : \n" % (self.now)
+        self.LOG = "\n\n[%s] Starting Log : \n" % (self.now())
         if note:
             self.LOG += str(note)
 
@@ -119,7 +119,7 @@ class LogService():
                 res += "   .get(%s): %s \n" % (k,el.get(k))
             if i+1 >= n: break
         res += "... continues for %s items.\n" % len(elList)
-        self.log(res)
+        self.log(res, "cyan")
             
     def showList(self,name, showList,n=5):
         res = "Showing first %s %s of [%s].....................\n" % (n,type(showList[0]),name)
@@ -127,7 +127,7 @@ class LogService():
             res += "[%s] %s\n" % (i,x)
             if i+1 >= n: break
         res += "... continues for %s items.\n" % len(showList)
-        self.log(res)
+        self.log(res, "cyan")
 
     def showLod(self,name, showLod,n=5):
         if len(showLod) < 1 or type(showLod) != list: 
@@ -144,13 +144,12 @@ class LogService():
                     res +='    k[%s] %s \n' % (k,d[k])
                 if i+1 >= n: break
             res += "... continues for %s items." % len(showLod)
-            self.log(res)
-            return res
+            self.log(res, "cyan")
     
     def showDict(self,name,showDict,n=10):
         if len(showDict.keys()) < 1 or type(showDict) != list: 
             res = "...cannot show lod: [%s]" % showDict
-            self.log(res)
+            self.log(res, "cyan")
             return res
         else:
             res = "\n"
@@ -161,8 +160,8 @@ class LogService():
                 res +='    k[%s] %s \n' % (k,d[k])
                 if i > n: break
             res += "... continues for %s keys.\n\n" % len(keys)
-            self.log(res)
-            return res
+            self.log(res, "cyan")
+
 
 
     def showUrl(self,url, queries):

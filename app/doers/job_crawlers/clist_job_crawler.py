@@ -18,11 +18,15 @@ class CListJobCrawler(JobCrawler):
     
     def buildCraigsListJobResult(self,titleDict):
         """Takes in an dict with keys [title, url] of a Craig's List Job Listing and returns a dictionary"""
+        self.log.todo("job results include the email to send response to.")
         CRAIGS_LIST_DESC_QUERY = '//section[@id="postingbody"]/text()'
         title= titleDict['title']
         url = titleDict['url']
         xml = titleDict['xml']
+        timeStamp = time.time()
+        prettytimeStamp = self.log.now()
 
+        
         try:
             data = xml.xpath(CRAIGS_LIST_DESC_QUERY)
             body = data[1].replace("\n","").strip()
@@ -38,7 +42,11 @@ class CListJobCrawler(JobCrawler):
         # print "..."
 
         return {
-            'title':title,'url':url,'desc':desc
+            'title':title, 
+            'url':url, 
+            'timeStamp':timeStamp, 
+            'prettytimeStamp':prettytimeStamp, 
+            'desc':desc
             }
 
     def refreshData(self, config):
@@ -47,16 +55,16 @@ class CListJobCrawler(JobCrawler):
         # Crawl clist url for titles.
         jobData = self.crawl(
             self.config['baseUrl'])['tree'].xpath(self.config['jobQuery'])
-        self.addLog('...crawl() yielded (%s) links.' % len(jobData),"gray")
+        self.addLog('...crawl() yielded (%s) links.' % len(jobData),"cyan")
         # Convert crawl data to lod.
         titles = [{'title':el.text_content(),'url':el.get('href')} for el in jobData] 
-        self.addLog('...saving %s titles.' % len(titles), "gray")
+        self.addLog('...saving %s titles.' % len(titles), "cyan")
         # Write to json file.
         # self.saveToJsonFile(self.config['jobTitlesFile'], titles)
         self.saveTitles(titles)
         self.log.log(
             "...time to crawl, process and save titles [%s]." % (
-                self.log.elapsed(crawlstart)), "gray")
+                self.log.elapsed(crawlstart)), "cyan")
 
     def crawlCList(self, config=TEST_CLIST_CONFIG, searchTerms=['.']):
         """Takes in a list of search terms and returns a list of job results from Craig's List"""
@@ -81,9 +89,9 @@ class CListJobCrawler(JobCrawler):
         self.log.showList("...matches resulting from search",matches, 5)
 
         # Crawl urls of matching filtered matches and build job results
-        self.log.todo("crawl urls of matching filtered matches and build job results.")
-        self.log.todo("write job results to file.")
-        if True:
+        self.log.todo("crawl urls of matching filtered matches and build job results.", True)
+        self.log.todo("write job results to file.", True)
+        if False:
             jobs = []
             for e,t in enumerate(titles):
                 job = {}
@@ -109,5 +117,5 @@ class CListJobCrawler(JobCrawler):
         self.log.showLod("results of clist crawl",results, 5)        
         
         self.log.logTodos()
-        # print(self.log.dump())        
+        print(self.log.dump())        
         return results    

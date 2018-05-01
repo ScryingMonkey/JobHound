@@ -41,5 +41,5 @@ class TestCListCrawler(object):
         assert len(self.results) == sum([isinstance(d['xml'],html.HtmlElement) for d in self.results])
         assert len(self.results) == sum([isinstance(d['desc'],str) for d in self.results])
     
-    def test_dumpLog(self):
-       print(self.cljc.log.dump())
+    # def test_dumpLog(self):
+    #    print(self.cljc.log.dump())

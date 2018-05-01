@@ -4,7 +4,6 @@
   "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_jobTitlesFile", 
   "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_jobDetailsFile", 
   "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_resultDictsContainCorrectTypes", 
-  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_dumpLog", 
   "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_saveToJsonFile", 
   "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_readFromJsonFile", 
   "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_crawl", 
