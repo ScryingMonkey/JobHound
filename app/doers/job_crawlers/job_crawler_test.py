@@ -7,7 +7,7 @@ class TestJobCrawler(object):
     TEST_CONFIG= {
             'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
             'jobTitlesFile': "CListJobTitles.txt",
-            'jobDetailsFile': "CListJobDetails.txt",
+            'jobFile': "CListJobDetails.txt",
             'jobQuery': '//a[@class="result-title hdrlnk"]'
         }
 

@@ -10,6 +10,5 @@
   "app/doers/job_crawler_test.py::TestCrawler::()::test_jobDetailsFile": true, 
   "app/doers/job_crawler_test.py::TestJobCrawler": true, 
   "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_allDictKeysHaveValues": true, 
-  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_crawlCraigsList": true, 
-  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_jobDetailsFile": true
+  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_resultDictsContainCorrectTypes": true
 }

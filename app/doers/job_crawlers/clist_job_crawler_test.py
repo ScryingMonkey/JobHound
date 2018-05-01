@@ -4,14 +4,14 @@ import timeit
 
 class TestCListCrawler(object):
     TEST_SEARCH_TERMS = ["Developer", "Coder", "Roofing"]
-    TEST_CONFIG= {
-            'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
-            'jobTitlesFile': "CListJobTitles.txt",
-            'jobDetailsFile': "CListJobDetails.txt",
-            'jobQuery': '//a[@class="result-title hdrlnk"]'
+    TEST_CLIST_CONFIG = {
+        'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
+        'jobTitlesFile': "CListJobTitles.txt",
+        'jobFile': "CListJobDetails.txt",
+        'jobQuery': '//a[@class="result-title hdrlnk"]'
         }
 
-    cljc = CListJobCrawler(TEST_CONFIG)
+    cljc = CListJobCrawler(TEST_CLIST_CONFIG)
     results = cljc.crawlCList(TEST_SEARCH_TERMS)
 
     def test_crawlCraigsList(self):     
@@ -29,7 +29,7 @@ class TestCListCrawler(object):
         assert len(data) > 0
     
     def test_jobDetailsFile(self):
-        jfile = self.cljc.config['jobDetailsFile']
+        jfile = self.cljc.config['jobFile']
         data = self.cljc.readFromJsonFile(jfile)['data']
         assert len(data) > 0
 
@@ -42,5 +42,4 @@ class TestCListCrawler(object):
         assert len(self.results) == sum([isinstance(d['desc'],str) for d in self.results])
     
     def test_dumpLog(self):
-        print(self.cljc.getLog())
-        pass
+       print(self.cljc.log.dump())
