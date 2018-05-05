@@ -13,13 +13,16 @@ class TestCListCrawler(object):
 
     cljc = CListJobCrawler(TEST_CLIST_CONFIG)
     results = cljc.crawlCList(TEST_SEARCH_TERMS)
+    cljc.log.showLod("Results lod in TestCListCrawler()")
 
+    cljc.log.show
     def test_crawlCraigsList(self):     
         assert isinstance(self.results,list)
         assert isinstance(self.results[0],dict)
         assert len(self.results[0]) == 4
 
     def test_allDictKeysHaveValues(self):
+
         for k in self.results[0].keys():
             assert [len(d[k]) > 0 for d in self.results]
     

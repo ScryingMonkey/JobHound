@@ -18,7 +18,6 @@ class CListJobCrawler(JobCrawler):
     
     def buildCraigsListJobResult(self,titleDict):
         """Takes in an dict with keys [title, url] of a Craig's List Job Listing and returns a dictionary"""
-        self.log.todo("job results include the email to send response to.")
         CRAIGS_LIST_DESC_QUERY = '//section[@id="postingbody"]/text()'
         title= titleDict['title']
         url = titleDict['url']
@@ -91,6 +90,7 @@ class CListJobCrawler(JobCrawler):
         # Crawl urls of matching filtered matches and build job results
         self.log.todo("crawl urls of matching filtered matches and build job results.", True)
         self.log.todo("write job results to file.", True)
+        self.log.todo("job results include the email to send response to.")        
         if False:
             jobs = []
             for e,t in enumerate(titles):
@@ -118,4 +118,4 @@ class CListJobCrawler(JobCrawler):
         
         self.log.logTodos()
         print(self.log.dump())        
-        return results    
+        return results  # lod  

@@ -13,21 +13,32 @@ class LogService():
         self.startTime = None
 
     # TODO METHODS ==========================================
-    def todo(self,s,b=False):
+    def todo(self,todo,b=False):
+        """Takes in a todo<string> and an optional b<boolean>
+        indicating whether the todo has been completed.  Adds 
+        a formatted todo to the central TODO list.
+        """
         if b:
-            s = colored.green("\n[X] %s" % s)
+            todo = colored.green("\n[X] %s" % todo)
         else:
-            s = colored.yellow("\n[ ] %s" % s)
-        self.todos.append(s)
+            todo = colored.yellow("\n[ ] %s" % todo)
+        self.todos.append(todo)
     
     def logTodos(self):
+        """Adds all todos to central LOG var and clears
+        todo list.
+        """
         res = colored.yellow("\n\nTODOS: \n")
         for t in self.todos:
             res += t
+        self.todos = []
         self.log(res)
 
     # Logging METHODS ==========================================
     def startLoggingService(self):
+        """Prints a log message describing initial
+        logging service conditions.
+        """
         if self.logLevel <= -1:
             print ""
             print(colored.blue("   ..........................................."))
@@ -38,15 +49,38 @@ class LogService():
             print(colored.blue("   ..........................................."))
 
     def startLog(self, note =""):
+        """Initiated central LOG var including 
+        optional note.
+        """
         self.startTime = time.time()
         self.LOG = "\n\n[%s] Starting Log : \n" % (self.now())
         if note:
             self.LOG += str(note)
 
     def tlog(self, msg, color="white"):
+        """Takes in a msg<string> and a color<string> and 
+        adds a timestamped and formatted version of msg to
+        central LOG var if color > logLevel.
+          "red":5:Errors
+          "yellow":3:Warnings
+          "green":2:Good results
+          "white":1:Primary logs
+          "cyan":0:Secondary logs
+          "blue":-1:Method calls
+        """
         self.log("[%s] %s" % (self.now,msg), color)
 
     def log(self, msg, color="white"):
+        """Takes a msg<string> and a color<string> and 
+        adds a formatted version of txt in color to the 
+        central LOG var if color > logLevel.
+          "red":5:Errors
+          "yellow":3:Warnings
+          "green":2:Good results
+          "white":1:Primary logs
+          "cyan":0:Secondary logs
+          "blue":-1:Method calls
+        """
         method_file = sys._getframe(1).f_code.co_filename        
         method_name = sys._getframe(1).f_code.co_name
         method_line = sys._getframe(1).f_lineno
@@ -76,6 +110,8 @@ class LogService():
                                 method_file,method_name,method_args,method_line))
 
     def dump(self):
+        """Clears central LOG var and returns it's contents.
+        """
         self.LOG += "\n[%s] dump logs. \n\n" % self.now()
         dump = self.LOG
         self.LOG = None
@@ -85,7 +121,9 @@ class LogService():
         return time.strftime("%H:%M:%S")
 
     def elapsed(self, startTime):
-        """returns the time between startTime and now and adds an entry to the log."""
+        """Takes in a start time and Returns the time 
+        between startTime and now.
+        """
         t = time.time() - startTime
         # self.addLog( 
         #     "---elapsed [%s ] for method: <%s>%s" % (
@@ -93,6 +131,17 @@ class LogService():
         return t
 
     def show(self,txt, color):
+        """ Takes in a string(txt) and a color (red,
+        yellow, green, white, cyan, or blue) and prints
+        a formatted version of txt in color to terminal 
+        if color > logLevel.
+          "red":5:Errors
+          "yellow":3:Warnings
+          "green":2:Good results
+          "white":1:Primary logs
+          "cyan":0:Secondary logs
+          "blue":-1:Method calls
+        """
         level = {"red":5, "yellow":3, "green":2, "white":1, "cyan":0, "blue":-1}
         if self.logLevel <= level[color.lower()]:
             if color == "red":       
@@ -122,6 +171,10 @@ class LogService():
         self.log(res, "cyan")
             
     def showList(self,name, showList,n=5):
+        """Takes in a name (text description), list, and an 
+        optional int(n=5) for how many rows to show.  
+        Prints n rows of the list to terminal.
+        """
         res = "Showing first %s %s of [%s].....................\n" % (n,type(showList[0]),name)
         for i,x in enumerate(showList):
             res += "[%s] %s\n" % (i,x)
@@ -130,6 +183,10 @@ class LogService():
         self.log(res, "cyan")
 
     def showLod(self,name, showLod,n=5):
+        """Takes in a name (text description), lod, and an 
+        optional int(n=5) for how many rows to show.  
+        Prints n rows of the lod to terminal.
+        """
         if len(showLod) < 1 or type(showLod) != list: 
             res = "...cannot show lod: [%s]" % showLod
             self.log(res)
@@ -147,8 +204,12 @@ class LogService():
             self.log(res, "cyan")
     
     def showDict(self,name,showDict,n=10):
+        """Takes in a name (text description), lod, and an 
+        optional int(n=5) for how many keys to show.  
+        Prints the first n keys of the dict to the terminal.
+        """
         if len(showDict.keys()) < 1 or type(showDict) != list: 
-            res = "...cannot show lod: [%s]" % showDict
+            res = "...cannot show dict: [%s]" % showDict
             self.log(res, "cyan")
             return res
         else:
