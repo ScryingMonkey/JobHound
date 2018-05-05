@@ -31,7 +31,7 @@ class JobCrawler:
         self.links = None 
         self.logLevel = logLevel
         
-        self.log = LogService("c:/push/log_testing.txt")
+        self.log = LogService("c:/push/log_testing.txt",logLevel)
         self.log.startLog()
 
         self.log.todo("Separate out Crawler() class.", True)
@@ -86,12 +86,20 @@ class JobCrawler:
             json.dump(lod, outfile)
 
     def addToJsonFile(self, outfile, lod):
+        """Takes in a filename<string> and a lod.  Adds
+        contents of lod to file in json format.
+        """
         self.log.log(
             "...saving lod with length [%s] to file [%s]." % (
                 len(lod),fileName))
         outfile.append(json.dumps(lod))
 
     def readFromJsonFile(self, fileName):
+        """Takes in a filename<string> for a json file and 
+        returns a contents of file in a dict.
+
+        returns {"dict: <data from file>}
+        """
         self.log.log("...reading json from file [%s]." % (fileName))        
         try:
             with open(fileName,'r') as infile:

@@ -17,13 +17,23 @@ class CListJobCrawler(JobCrawler):
         }
     
     def buildCraigsListJobResult(self,titleDict):
-        """Takes in an dict with keys [title, url] of a Craig's List Job Listing and returns a dictionary"""
+        """Takes in an dict with keys [title, url] of a 
+        Craig's List Job Listing and returns a dictionary
+        returns {
+            'title':title of job listing, 
+            'url':url for job listing, 
+            'timeStamp':timeStamp, 
+            'prettyTimeStamp':prettytimeStamp, 
+            'email':email to respond to,
+            'desc':description of job,
+            }
+        """
         CRAIGS_LIST_DESC_QUERY = '//section[@id="postingbody"]/text()'
         title= titleDict['title']
         url = titleDict['url']
         xml = titleDict['xml']
         timeStamp = time.time()
-        prettytimeStamp = self.log.now()
+        prettyTimeStamp = self.log.now()
 
         
         try:
@@ -35,7 +45,7 @@ class CListJobCrawler(JobCrawler):
             self.log.log(str(data))
         
         desc = body        
-        
+        email = "@TODO"
         # print "..."
         # print body
         # print "..."
@@ -44,11 +54,15 @@ class CListJobCrawler(JobCrawler):
             'title':title, 
             'url':url, 
             'timeStamp':timeStamp, 
-            'prettytimeStamp':prettytimeStamp, 
+            'prettyTimeStamp':prettyTimeStamp, 
+            'email':email,
             'desc':desc
             }
 
-    def refreshData(self, config):
+    def refreshTitlesData(self, config):
+        """Takes in a config<dict>, recrawls and updates 
+        data in titles database.
+        """
         self.log.todo("refreshData() crawls only results that are newer than newest saved timestamp.")
         crawlstart = time.time()
         # Crawl clist url for titles.
@@ -66,13 +80,15 @@ class CListJobCrawler(JobCrawler):
                 self.log.elapsed(crawlstart)), "cyan")
 
     def crawlCList(self, config=TEST_CLIST_CONFIG, searchTerms=['.']):
-        """Takes in a list of search terms and returns a list of job results from Craig's List"""
+        """Takes in a list of search terms and returns a 
+        list of job results from Craig's List
+        """
         results = []
         start = time.time()
         self.log.todo("Set up git hub vc.",True)
         # if we should crawl...
         if False:
-            self.refreshData(config)
+            self.refreshTitlesData(config)
             self.log.todo("Date stamp crawl jsons.")
             self.log.todo("Crawl only if file older than a specified date.")
         # Read json from file.
@@ -91,7 +107,7 @@ class CListJobCrawler(JobCrawler):
         self.log.todo("crawl urls of matching filtered matches and build job results.", True)
         self.log.todo("write job results to file.", True)
         self.log.todo("job results include the email to send response to.")        
-        if False:
+        if True:
             jobs = []
             for e,t in enumerate(titles):
                 job = {}
@@ -116,6 +132,10 @@ class CListJobCrawler(JobCrawler):
                 len(results), self.log.elapsed(start)), "white") 
         self.log.showLod("results of clist crawl",results, 5)        
         
-        self.log.logTodos()
-        print(self.log.dump())        
+        # for k in results[0].keys():
+            # assert [len(d[k]) > 0 for d in self.results]
+            # self.log.log(([assert d[k] is not None for d in results]),"yellow")
+
+        # self.log.logTodos()
+        # print(self.log.dump())        
         return results  # lod  

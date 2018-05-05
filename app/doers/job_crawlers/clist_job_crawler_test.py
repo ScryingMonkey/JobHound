@@ -11,20 +11,19 @@ class TestCListCrawler(object):
         'jobQuery': '//a[@class="result-title hdrlnk"]'
         }
 
-    cljc = CListJobCrawler(TEST_CLIST_CONFIG)
+    cljc = CListJobCrawler(TEST_CLIST_CONFIG, -1)
     results = cljc.crawlCList(TEST_SEARCH_TERMS)
-    cljc.log.showLod("Results lod in TestCListCrawler()")
 
-    cljc.log.show
     def test_crawlCraigsList(self):     
         assert isinstance(self.results,list)
         assert isinstance(self.results[0],dict)
-        assert len(self.results[0]) == 4
+        assert len(self.results[0]) == 7
 
     def test_allDictKeysHaveValues(self):
-
-        for k in self.results[0].keys():
-            assert [len(d[k]) > 0 for d in self.results]
+        keys = self.results[0].keys()
+        assert False not in [
+            [True for k in keys if d[k] is not None] 
+                for d in self.results]
     
     def test_jobTitlesFile(self):
         jfile = self.cljc.config['jobTitlesFile']
@@ -38,11 +37,22 @@ class TestCListCrawler(object):
 
     def test_resultDictsContainCorrectTypes(self):        
         # 'title':title,'url':url,'xml':xml,'desc':desc
-        assert len(self.results) == sum([isinstance(d['title'],str) for d in self.results])
-        assert len(self.results) == sum([isinstance(d['url'],str) for d in self.results])
+        shouldBeType = {
+            'title':unicode,
+            'url':unicode,
+            "timeStamp":float,
+            "prettyTimeStamp":unicode,
+            'email':unicode,
+            'desc':unicode,
+            }
+        for k in shouldBeType.keys():
+            assert k and False not in [isinstance(d[k],shouldBeType[k]) for d in self.results]
+
+        assert False not in ["http" in d['url'] for d in self.results]
+        assert False not in ["@" in d['email'] for d in self.results]
         assert len(self.results) == sum(["http" in d['url'] for d in self.results])
-        assert len(self.results) == sum([isinstance(d['xml'],html.HtmlElement) for d in self.results])
-        assert len(self.results) == sum([isinstance(d['desc'],str) for d in self.results])
+        assert len(self.results) == sum(["@" in d['email'] for d in self.results])
     
     # def test_dumpLog(self):
-    #    print(self.cljc.log.dump())
+    #     self.cljc.log.logTodos()
+    #     print(self.cljc.log.dump())

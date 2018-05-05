@@ -44,7 +44,7 @@ class LogService():
             print(colored.blue("   ..........................................."))
             print(colored.blue("   ...Starting LogService()"))
             print(colored.blue("   ...sys.stdout.isatty(): %s" % sys.stdout.isatty()))
-            print(colored.blue("   ...pathToLogFile: %s" % pathToLogFile))
+            print(colored.blue("   ...pathToLogFile: %s" % self.pathToLogFile))
             print(colored.blue("   ...logLevel: %s" % self.logLevel))
             print(colored.blue("   ..........................................."))
 
@@ -68,7 +68,7 @@ class LogService():
           "cyan":0:Secondary logs
           "blue":-1:Method calls
         """
-        self.log("[%s] %s" % (self.now,msg), color)
+        self.log("\n[%s] %s" % (self.now(), msg), color)
 
     def log(self, msg, color="white"):
         """Takes a msg<string> and a color<string> and 
@@ -112,13 +112,14 @@ class LogService():
     def dump(self):
         """Clears central LOG var and returns it's contents.
         """
-        self.LOG += "\n[%s] dump logs. \n\n" % self.now()
+        #self.LOG += "\n[%s] dump logs. \n\n" % self.now()
+        self.tlog("dumping logs. \n\n", "white")
         dump = self.LOG
         self.LOG = None
         return dump
     
     def now(self):
-        return time.strftime("%H:%M:%S")
+        return str(time.strftime("%b%d%Y_%H:%M:%S"))
 
     def elapsed(self, startTime):
         """Takes in a start time and Returns the time 
@@ -170,7 +171,7 @@ class LogService():
         res += "... continues for %s items.\n" % len(elList)
         self.log(res, "cyan")
             
-    def showList(self,name, showList,n=5):
+    def showList(self, name, showList, n=5):
         """Takes in a name (text description), list, and an 
         optional int(n=5) for how many rows to show.  
         Prints n rows of the list to terminal.
@@ -182,7 +183,7 @@ class LogService():
         res += "... continues for %s items.\n" % len(showList)
         self.log(res, "cyan")
 
-    def showLod(self,name, showLod,n=5):
+    def showLod(self, name, showLod, n=5):
         """Takes in a name (text description), lod, and an 
         optional int(n=5) for how many rows to show.  
         Prints n rows of the lod to terminal.
@@ -194,12 +195,19 @@ class LogService():
         else:
             res = "\n"
             res += "Showing first %s %s of [%s].....................\n" % (n,type(showLod[0]),name)
+            res += "[\n"
             keys = showLod[0].keys()
             for i,d in enumerate(showLod):
-                res += '[%s]: \n' % i
+                # res += 'lod[%s]\n' % i  
+                res += "    {\n"                       
                 for k in keys:
-                    res +='    k[%s] %s \n' % (k,d[k])
+                    if isinstance(d[k],str) or isinstance(d[k],unicode):
+                        res +='    "%s": "%s", \n' % (k,d[k])
+                    else:
+                        res +='    "%s": %s, \n' % (k,d[k])
+                res += '    },\n'          
                 if i+1 >= n: break
+            res += "]\n"
             res += "... continues for %s items." % len(showLod)
             self.log(res, "cyan")
     
