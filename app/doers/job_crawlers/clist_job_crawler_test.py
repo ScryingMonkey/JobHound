@@ -11,7 +11,7 @@ class TestCListCrawler(object):
         'jobQuery': '//a[@class="result-title hdrlnk"]'
         }
 
-    cljc = CListJobCrawler(TEST_CLIST_CONFIG, -1)
+    cljc = CListJobCrawler(TEST_CLIST_CONFIG, 0)
     results = cljc.crawlCList(TEST_SEARCH_TERMS)
 
     def test_crawlCraigsList(self):     
@@ -53,6 +53,6 @@ class TestCListCrawler(object):
         assert len(self.results) == sum(["http" in d['url'] for d in self.results])
         assert len(self.results) == sum(["@" in d['email'] for d in self.results])
     
-    # def test_dumpLog(self):
-    #     self.cljc.log.logTodos()
-    #     print(self.cljc.log.dump())
+    def test_dumpLog(self):
+        self.cljc.log.logTodos()
+        print(self.cljc.log.dump())

@@ -39,6 +39,7 @@ class LogService():
         """Prints a log message describing initial
         logging service conditions.
         """
+        self.todo("Review https://github.com/jfeldstein/Craigslist-Autorespond/blob/master/autorespond.py")
         if self.logLevel <= -1:
             print ""
             print(colored.blue("   ..........................................."))

@@ -70,6 +70,22 @@ class JobCrawler:
         self.log.log(res)        
         return matches
     
+    def scanForEmail(self,text):
+        DOM_FILE = "./apps/doers/job_crawlers/topLevelDomains.txt"
+        doms = self.readFromJsonFile(DOM_FILE)['data']
+        nonalpha = ["<",">"]
+        res = []
+        buffer = ""
+        for c in txt:
+            if "@" in buffer and bool([True for c in doms if c in text]):
+                res.append(buffer)
+                buffer = ""
+            elif c in nonalpha:
+                buffer = ""
+            else:
+                buffer += c
+        return res
+
     def saveTitles(self, titles):
         self.log.log("...saving results of length %s." % len(data))
         self.saveToJsonFile(self.config['jobTitlesFile'],data)
@@ -98,7 +114,7 @@ class JobCrawler:
         """Takes in a filename<string> for a json file and 
         returns a contents of file in a dict.
 
-        returns {"dict: <data from file>}
+        returns {"data": <data from file>}
         """
         self.log.log("...reading json from file [%s]." % (fileName))        
         try:

@@ -9,5 +9,17 @@
   "app/doers/job_crawler_test.py::TestCraigsListCrawler::()::test_jobDetailsFile": true, 
   "app/doers/job_crawler_test.py::TestCrawler::()::test_jobDetailsFile": true, 
   "app/doers/job_crawler_test.py::TestJobCrawler": true, 
-  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_resultDictsContainCorrectTypes": true
+  "app/doers/job_crawlers/clist_job_crawler_test.py": true, 
+  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()": true, 
+  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_allDictKeysHaveValues": true, 
+  "app/doers/job_crawlers/clist_job_crawler_test.py::TestCListCrawler::()::test_crawlCraigsList": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_crawl": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_crawlData": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_crawlTime": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_dumpLog": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_readFromJsonFile": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_saveToJsonFile": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_searchOnDummyData": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_searchOnLiveData": true, 
+  "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_searchTimeOnDummyData": true
 }

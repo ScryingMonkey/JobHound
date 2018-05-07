@@ -16,6 +16,42 @@ class CListJobCrawler(JobCrawler):
         'jobQuery': '//a[@class="result-title hdrlnk"]'
         }
     
+    def parseCListDesc(self, jobResponse):
+        CRAIGS_LIST_DESC_QUERY = '//section[@id="postingbody"]/text()'
+        try:
+            data = jobResponse['tree'].xpath(CRAIGS_LIST_DESC_QUERY)
+            desc = data[1].replace("\n","").strip()
+            self.log.show("desc: \"%s\"" % desc, "cyan")
+        except IndexError: 
+            desc = ""
+            self.log.log("...no results from xml. \n", "yellow")
+            self.log.log(str(data))
+        return desc
+
+    def parseCListResponseEmail(self,jobResponse):
+        #self.log.show("taking in xml %s and html %s" % (jobResponse['tree'],jobResponse['html']), "cyan")                
+        desc = self.parseCListDesc(jobResponse)
+        # self.log.show("retrieved desc: \"%s\"" % desc, "cyan")        
+        # Pull email from description or fetch the anonymous email if needed
+        if "@" in jobResponse['desc']:
+            # split = desc.split(" ")
+            # email = [w for w in split if "@" in w]
+            email = self.scanForEmail(desc)
+        if "@" in desc and bool([True for c in dots if c in jobResponse['html']]):
+            # print("in html loop...")
+            # expression = re.compile(r"(\S+)@(\S+)")
+            # result = expression.findall(html)
+            # print("result: %s" % result)
+            
+            # print("email from html: %s" % (res))
+            email = self.scanForEmail(html)            
+        else:
+            print("in else loop...")
+            email = None
+        
+            
+        return email 
+    
     def buildCraigsListJobResult(self,titleDict):
         """Takes in an dict with keys [title, url] of a 
         Craig's List Job Listing and returns a dictionary
@@ -28,27 +64,12 @@ class CListJobCrawler(JobCrawler):
             'desc':description of job,
             }
         """
-        CRAIGS_LIST_DESC_QUERY = '//section[@id="postingbody"]/text()'
         title= titleDict['title']
         url = titleDict['url']
-        xml = titleDict['xml']
         timeStamp = time.time()
         prettyTimeStamp = self.log.now()
-
-        
-        try:
-            data = xml.xpath(CRAIGS_LIST_DESC_QUERY)
-            body = data[1].replace("\n","").strip()
-        except IndexError: 
-            body = ""
-            self.log.log("...no results from xml. \n", "yellow")
-            self.log.log(str(data))
-        
-        desc = body        
-        email = "@TODO"
-        # print "..."
-        # print body
-        # print "..."
+        desc = self.parseCListDesc(titleDict['response'])        
+        email = self.parseCListResponseEmail(titleDict['response'])
 
         return {
             'title':title, 
@@ -56,13 +77,16 @@ class CListJobCrawler(JobCrawler):
             'timeStamp':timeStamp, 
             'prettyTimeStamp':prettyTimeStamp, 
             'email':email,
-            'desc':desc
+            'desc':desc,
+            'timeToCrawl':None
             }
+
 
     def refreshTitlesData(self, config):
         """Takes in a config<dict>, recrawls and updates 
         data in titles database.
         """
+        self.log.log("refreshing titles file", "cyan")
         self.log.todo("refreshData() crawls only results that are newer than newest saved timestamp.")
         crawlstart = time.time()
         # Crawl clist url for titles.
@@ -78,7 +102,25 @@ class CListJobCrawler(JobCrawler):
         self.log.log(
             "...time to crawl, process and save titles [%s]." % (
                 self.log.elapsed(crawlstart)), "cyan")
-
+    def refreshJobsData(self,titles,n=None):
+        """Takes in a list of titles and url pairs<dict>, 
+        crawls urls and updates data in jobs database.
+        """
+        self.log.log("refreshing jobs file", "cyan")        
+        jobs = []
+        for e,t in enumerate(titles):
+            job = {}
+            crawlstart = time.time()
+            t['response'] = self.crawl(t['url'])
+            job = self.buildCraigsListJobResult(t)       
+            job['timeToCrawl'] = self.log.elapsed(crawlstart)
+            self.log.log(
+                "...time to crawl, process and save match %s [%s]" % (
+                    e,self.log.elapsed(crawlstart)))
+            jobs.append(job)
+            if n:
+                if e>n: break
+        self.saveJobs(jobs)
     def crawlCList(self, config=TEST_CLIST_CONFIG, searchTerms=['.']):
         """Takes in a list of search terms and returns a 
         list of job results from Craig's List
@@ -108,20 +150,7 @@ class CListJobCrawler(JobCrawler):
         self.log.todo("write job results to file.", True)
         self.log.todo("job results include the email to send response to.")        
         if True:
-            jobs = []
-            for e,t in enumerate(titles):
-                job = {}
-                crawlstart = time.time()
-                t['xml'] = self.crawl(t['url'])['tree']
-                job = self.buildCraigsListJobResult(t)                
-                timeToCrawl = self.log.elapsed(start)
-                job['timeToCrawl'] = timeToCrawl
-                self.log.log(
-                    "...time to crawl, process and save match %s [%s]" % (
-                        e,self.log.elapsed(crawlstart)))
-                jobs.append(job)
-                # if e>5: break
-            self.saveJobs(jobs)
+            self.refreshJobsData(titles,5)
         jobs = self.readFromJsonFile(self.config['jobFile'])['data']
         results = []
         for job in jobs:
