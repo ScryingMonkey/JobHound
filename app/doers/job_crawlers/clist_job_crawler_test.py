@@ -1,4 +1,4 @@
-from . import CListJobCrawler
+from app.doers import CListJobCrawler
 from lxml import html
 import timeit
 
@@ -8,10 +8,12 @@ class TestCListCrawler(object):
         'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
         'jobTitlesFile': "CListJobTitles.txt",
         'jobFile': "CListJobDetails.txt",
-        'jobQuery': '//a[@class="result-title hdrlnk"]'
+        'jobQuery': '//a[@class="result-title hdrlnk"]',
+        'logPath': "c:/push/log_testing_TestCListCrawler.txt",
+        'logLevel':0
         }
 
-    cljc = CListJobCrawler(TEST_CLIST_CONFIG, 0)
+    cljc = CListJobCrawler(TEST_CLIST_CONFIG)
     results = cljc.crawlCList(TEST_SEARCH_TERMS)
 
     def test_crawlCraigsList(self):     

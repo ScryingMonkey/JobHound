@@ -5,10 +5,12 @@ import timeit
 class TestJobCrawler(object):
     TEST_SEARCH_TERMS = ["Developer","Coder"]
     TEST_CONFIG= {
-            'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
-            'jobTitlesFile': "CListJobTitles.txt",
-            'jobFile': "CListJobDetails.txt",
-            'jobQuery': '//a[@class="result-title hdrlnk"]'
+        'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
+        'jobTitlesFile': "CListJobTitles.txt",
+        'jobFile': "CListJobDetails.txt",
+        'jobQuery': '//a[@class="result-title hdrlnk"]',
+        'logPath': "c:/push/log_testing_TestJobCrawler.txt",
+        'logLevel':2
         }
 
     jc = JobCrawler(TEST_CONFIG)
@@ -63,7 +65,7 @@ class TestJobCrawler(object):
     def test_crawlTime(self):
         t = "JobCrawler().crawl('%s')" % (self.jc.config['baseUrl'])
         timeForCrawl = timeit.timeit(t, setup="from app.doers import JobCrawler", number=1)
-        assert timeForCrawl < 1
+        assert timeForCrawl < 5
 
     def test_searchOnDummyData(self):
         dummyData = ['Paving Specialist', 'Health Services Specialist', 'Web Developer', 'Day Laborer', 'REalestate developer']
@@ -84,7 +86,8 @@ class TestJobCrawler(object):
         pass
     
     def test_dumpLog(self):
-        # print(self.jc.getLog())
+        self.jc.log.logTodos()
+        print(self.jc.log.dump())
         pass
 
 

@@ -4,13 +4,18 @@ from clint.textui import colored
 
 class LogService():
 
-    def __init__(self, pathToLogFile="c:/push/log_unchristened.txt", logLevel= 0):
+    def __init__(self, pathToLogFile="c:/push/log_unchristened.txt", logLevel=5):
         self.pathToLogFile = os.path.normpath(pathToLogFile)
         self.logLevel = logLevel
         self.LOG = ""
         self.todos = []
-        self.startLoggingService()
-        self.startTime = None
+
+        method_file = sys._getframe(1).f_code.co_filename
+        method_name = sys._getframe(1).f_code.co_name
+        method_line = sys._getframe(1).f_lineno
+        method_args = sys._getframe(1).f_locals.keys()
+        self.startLoggingService(method_file)
+        self.startTime = None       
 
     # TODO METHODS ==========================================
     def todo(self,todo,b=False):
@@ -19,23 +24,25 @@ class LogService():
         a formatted todo to the central TODO list.
         """
         if b:
-            todo = colored.green("\n[X] %s" % todo)
+            todo = colored.green("[X] %s\n" % todo)
         else:
-            todo = colored.yellow("\n[ ] %s" % todo)
+            todo = colored.yellow("[ ] %s\n" % todo)
         self.todos.append(todo)
     
     def logTodos(self):
         """Adds all todos to central LOG var and clears
         todo list.
         """
-        res = colored.yellow("\n\nTODOS: \n")
+        method_file = sys._getframe(1).f_code.co_filename
+        self.LOG += colored.white("\nTODOS for [%s]: \n" % method_file)
         for t in self.todos:
-            res += t
+            self.LOG += "  %s" % t
+            # res += t
         self.todos = []
-        self.log(res)
+        # self.log(res)
 
     # Logging METHODS ==========================================
-    def startLoggingService(self):
+    def startLoggingService(self, callingFile):
         """Prints a log message describing initial
         logging service conditions.
         """
@@ -44,17 +51,20 @@ class LogService():
             print ""
             print(colored.blue("   ..........................................."))
             print(colored.blue("   ...Starting LogService()"))
+            print(colored.blue("   ...callingFile: %s" % callingFile))
             print(colored.blue("   ...sys.stdout.isatty(): %s" % sys.stdout.isatty()))
             print(colored.blue("   ...pathToLogFile: %s" % self.pathToLogFile))
             print(colored.blue("   ...logLevel: %s" % self.logLevel))
             print(colored.blue("   ..........................................."))
 
-    def startLog(self, note =""):
+    def startLog(self,note =""):
         """Initiated central LOG var including 
         optional note.
         """
+        method_file = sys._getframe(1).f_code.co_filename
         self.startTime = time.time()
-        self.LOG = "\n\n[%s] Starting Log : \n" % (self.now())
+        self.LOG = '"\n\n[%s] Starting Log "%s" at logLevel %s.\n\n' % (
+            self.now(),self.pathToLogFile,self.logLevel)
         if note:
             self.LOG += str(note)
 
@@ -87,20 +97,19 @@ class LogService():
         method_line = sys._getframe(1).f_lineno
         method_args = sys._getframe(1).f_locals.keys()
         try:
-            if(self.logLevel <= 1):
-                if color == "white":
-                    self.LOG += colored.white(" %s \n" % msg)
-                elif color == "red":       
-                    self.LOG += colored.red("%s \n" % (str(msg)))
-                elif color == "yellow":  
-                    self.LOG += colored.yellow("%s \n" % (str(msg)))
-                elif color == "green":   
-                    self.LOG += colored.green("%s \n" % (str(msg)))
-                elif color == "white":   
-                    self.LOG += colored.white("%s \n" % (str(msg)))
-                elif color == "cyan":    
-                    self.LOG += colored.cyan("%s \n" % (str(msg)))
-                else: self.LOG += (str(msg))
+            if color == "red" and self.logLevel <= 5:       
+                self.LOG += colored.red("%s \n" % (str(msg)))
+            elif color == "yellow" and self.logLevel <= 3:  
+                self.LOG += colored.yellow("%s \n" % (str(msg)))
+            elif color == "green" and self.logLevel <= 2:   
+                self.LOG += colored.green("%s \n" % (str(msg)))
+            elif color == "white" and self.logLevel <= 1:   
+                self.LOG += colored.white("%s \n" % (str(msg)))
+            elif color == "cyan" and self.logLevel <= 0:    
+                self.LOG += colored.cyan("%s \n" % (str(msg)))
+            elif color == "blue" and self.logLevel <= -1:    
+                self.LOG += colored.blue("%s \n" % (str(msg)))
+            else: pass
 
             if(self.logLevel <= -1): 
                 self.LOG += colored.blue("> %s(%s) \n" % (method_name,method_args))
@@ -114,9 +123,10 @@ class LogService():
         """Clears central LOG var and returns it's contents.
         """
         #self.LOG += "\n[%s] dump logs. \n\n" % self.now()
-        self.tlog("dumping logs. \n\n", "white")
+        self.tlog("Dumping active logs. Logs saved to %s\n\n" % (self.pathToLogFile), "white")
         dump = self.LOG
         self.LOG = None
+        # self.__del__()
         return dump
     
     def now(self):

@@ -1,6 +1,4 @@
-from job_crawlers.job_crawler import JobCrawler
-from job_crawlers.clist_job_crawler import CListJobCrawler
-# from job_crawlers import *
+from job_crawlers import *
+from job_tagger import *
 
-
-__all__ = ["JobCrawler","CListJobCrawler"]
+__all__ = ["JobCrawler", "CListJobCrawler", "JobTagger"]

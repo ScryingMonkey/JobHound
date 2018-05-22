@@ -1,4 +1,8 @@
 [
+  "app/doers/job_tagger_test.py::TestJobTagger::()::test_tagText", 
+  "app/doers/job_tagger_test.py::TestJobTagger::()::test_tagJob", 
+  "app/doers/job_tagger_test.py::TestJobTagger::()::test_tagJobs", 
+  "app/doers/job_tagger_test.py::TestJobTagger::()::test_dumpLog", 
   "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_saveToJsonFile", 
   "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_readFromJsonFile", 
   "app/doers/job_crawlers/job_crawler_test.py::TestJobCrawler::()::test_crawl", 

@@ -16,9 +16,11 @@ class JobCrawler:
         'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
         'jobTitlesFile': "UnchristenedJobTitles.txt",
         'jobFile': "UnchristenedJobDetails.txt",
-        'jobQuery': '//a[@class="result-title hdrlnk"]'
+        'jobQuery': '//a[@class="result-title hdrlnk"]',
+        'logPath': "c:/push/log_unchristened_JobCrawler.txt",
+        'logLevel':1
     }
-    def __init__(self, config=TEST_CONFIG, logLevel=-1 ):
+    def __init__(self, config=TEST_CONFIG):
         configKeys = ['baseUrl','jobTitlesFile','jobFile','jobQuery']
         for key in configKeys:
             if key not in config.keys():
@@ -29,9 +31,9 @@ class JobCrawler:
         self.state = "new"
         self.content = None
         self.links = None 
-        self.logLevel = logLevel
+        self.logLevel = config['logLevel']
         
-        self.log = LogService("c:/push/log_testing.txt",logLevel)
+        self.log = LogService(config['logPath'],config['logLevel'])
         self.log.startLog()
 
         self.log.todo("Separate out Crawler() class.", True)
@@ -45,7 +47,7 @@ class JobCrawler:
         tree = html.fromstring(page.content) 
         self.log.log(
             "...crawled [%s] in %s seconds." % (
-                url, self.log.elapsed(start)))
+                url, self.log.elapsed(start)), "white")
         return {"html":page.content,"tree":tree} 
     
     def search(self, listToSearch, searchTerms):
@@ -67,7 +69,7 @@ class JobCrawler:
                 len(matches),len(listToSearch),self.log.elapsed(start))
         if len(matches) < 1:
             matches = [{'oops':"No Results"}]
-        self.log.log(res)        
+        self.log.log(res,"cyan")        
         return matches
     
     def scanForEmail(self,text):
@@ -91,13 +93,15 @@ class JobCrawler:
         self.saveToJsonFile(self.config['jobTitlesFile'],data)
 
     def saveJobs(self, lod):
-        self.log.log("...saving results of length %s." % len(lod))
+        self.log.log("...saving results of length %s to %s." % (
+            len(lod),self.config['jobFile']),
+            "cyan")
         self.saveToJsonFile(self.config['jobFile'], lod)
 
     def saveToJsonFile(self, fileName, lod):
         self.log.log(
             "...saving list of <%s> with length [%s] to file [%s]." % (
-                type(lod[0]), len(lod),fileName))
+                type(lod[0]), len(lod),fileName),"cyan")
         with open(fileName,'w') as outfile:
             json.dump(lod, outfile)
 
@@ -116,7 +120,7 @@ class JobCrawler:
 
         returns {"data": <data from file>}
         """
-        self.log.log("...reading json from file [%s]." % (fileName))        
+        self.log.log("...reading json from file [%s]." % (fileName),"cyan")        
         try:
             with open(fileName,'r') as infile:
                 data = json.load(infile)
@@ -131,5 +135,5 @@ class JobCrawler:
                     "data":"...ERROR: unable to open file [%s]" % fileName, 
                     "E":"IOError"
                     }
-        self.log.log("...retrieved data with length [%s]." % (len(data)))                 
+        self.log.log("...retrieved data with length %s from [%s]." % (len(data),fileName),"cyan")                 
         return {"data":data}
