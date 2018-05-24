@@ -6,11 +6,11 @@ class TestCListCrawler(object):
     TEST_SEARCH_TERMS = ["Developer", "Coder", "Roofing"]
     TEST_CLIST_CONFIG = {
         'baseUrl': "https://nh.craigslist.org/d/jobs/search/jjj",
-        'jobTitlesFile': "CListJobTitles.txt",
-        'jobFile': "CListJobDetails.txt",
+        'jobTitlesFile': "CListJobTitles_NH.txt",
+        'jobFile': "CListJobDetails_NH.txt",
         'jobQuery': '//a[@class="result-title hdrlnk"]',
         'logPath': "c:/push/log_testing_TestCListCrawler.txt",
-        'logLevel':0
+        'logLevel':2
         }
 
     cljc = CListJobCrawler(TEST_CLIST_CONFIG)

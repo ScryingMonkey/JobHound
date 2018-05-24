@@ -63,10 +63,11 @@ class LogService():
         """
         method_file = sys._getframe(1).f_code.co_filename
         self.startTime = time.time()
-        self.LOG = '"\n\n[%s] Starting Log "%s" at logLevel %s.\n\n' % (
-            self.now(),self.pathToLogFile,self.logLevel)
+        
+        self.log('"\n\n[%s] Starting Log "%s" at logLevel %s.\n\n' % (
+            self.now(),self.pathToLogFile,self.logLevel), "white")
         if note:
-            self.LOG += str(note)
+            self.log(str(note))
 
     def tlog(self, msg, color="white"):
         """Takes in a msg<string> and a color<string> and 
@@ -209,6 +210,7 @@ class LogService():
             res += "[\n"
             keys = showLod[0].keys()
             for i,d in enumerate(showLod):
+                d = dict(d)
                 # res += 'lod[%s]\n' % i  
                 res += "    {\n"                       
                 for k in keys:

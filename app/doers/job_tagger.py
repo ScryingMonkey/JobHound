@@ -1,4 +1,5 @@
 from textblob import TextBlob
+#http://textblob.readthedocs.io/en/dev/quickstart.html
 
 from app.models import JobProfile
 from app.models import JobOpportunity
@@ -19,8 +20,26 @@ class JobTagger:
         return TextBlob(txt)
     def tagText(self,txt):
         blob = TextBlob(txt)
-        tags = blob.tags
-        self.log.log("tags:\n %s" % tags)
+        tags = ""
+        # self.log.log("tags:\n %s" % ([b[0] for b in blob.tags]), "white")
+        # self.log.log("noun_phrases:\n %s" % (blob.noun_phrases), "white")
+        # self.log.log("sentiment:\n %s" % (str(blob.sentiment)), "white")
+        # self.log.log("sentiment.polarity: %s\n" % (blob.sentiment.polarity), "white")
+        # self.log.log("sentiment.subjectivity: %s\n" % (blob.sentiment.subjectivity), "white")
+
+        # self.log.log(".words:\n %s" % (blob.words))
+        # self.log.log(".words.singularlize: %s\n" % blob.words.singularize(), "white")
+        # self.log.log(".words.lemmatize: %s\n" % blob.words.lemmatize(), "white")
+        
+        # self.log.log("sentence (subjectivity(), polarity()):\n", "white")
+        # for s in blob.sentences:
+        #     self.log.log("%s (%s, %s)" % (
+        #         s, s.sentiment.subjectivity, s.sentiment.polarity), 
+        #         "white")
+        POSkeepers = ["NN","NNS","NNP", "NNPS", ""]
+        trash = ["TO","DT","IN","CC"]
+        tags = [t[0] for t in blob.tags if t[1] not in trash]
+        self.log.log("...returning tags:\n%s\n" % tags, "white")        
         return tags
     def tagJob(self,job):
         '''take in a JobOpportunity and return a

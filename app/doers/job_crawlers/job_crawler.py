@@ -2,7 +2,7 @@ from lxml import html, etree
 import requests, json, sys, re, time, os.path
 from clint.textui import colored
 
-from app.models import JobProfile
+# from app.models import JobProfile
 from app.models import JobOpportunity
 from app.services import LogService
 
@@ -50,7 +50,7 @@ class JobCrawler:
                 url, self.log.elapsed(start)), "white")
         return {"html":page.content,"tree":tree} 
     
-    def search(self, listToSearch, searchTerms):
+    def searchList(self, listToSearch, searchTerms):
         start = time.time() 
         self.log.todo("Fix search().",True)        
         res = ""
@@ -71,29 +71,17 @@ class JobCrawler:
             matches = [{'oops':"No Results"}]
         self.log.log(res,"cyan")        
         return matches
-    
-    def scanForEmail(self,text):
-        DOM_FILE = "./apps/doers/job_crawlers/topLevelDomains.txt"
-        doms = self.readFromJsonFile(DOM_FILE)['data']
-        nonalpha = ["<",">"]
-        res = []
-        buffer = ""
-        for c in txt:
-            if "@" in buffer and bool([True for c in doms if c in text]):
-                res.append(buffer)
-                buffer = ""
-            elif c in nonalpha:
-                buffer = ""
-            else:
-                buffer += c
-        return res
 
-    def saveTitles(self, titles):
-        self.log.log("...saving results of length %s." % len(data))
-        self.saveToJsonFile(self.config['jobTitlesFile'],data)
+    def saveTitles(self, lod):
+        self.log.log(
+            "...saving results of length %s."
+             % len(lod),
+             "cyan")
+        self.saveToJsonFile(self.config['jobTitlesFile'], lod)
 
     def saveJobs(self, lod):
-        self.log.log("...saving results of length %s to %s." % (
+        self.log.log(
+            "...saving results of length %s to %s." % (
             len(lod),self.config['jobFile']),
             "cyan")
         self.saveToJsonFile(self.config['jobFile'], lod)
@@ -126,7 +114,7 @@ class JobCrawler:
                 data = json.load(infile)
         except IOError as e:
             try:
-                filename = "./%s" % filename
+                filename = "./%s" % fileName
                 with open(fileName,'r') as infile:
                     data = json.load(infile)
             except IOError as e:

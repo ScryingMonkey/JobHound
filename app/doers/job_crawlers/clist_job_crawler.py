@@ -28,60 +28,44 @@ class CListJobCrawler(JobCrawler):
             self.log.log("...no results from xml. \n", "yellow")
             self.log.log(str(data))
         return desc
-
-    def parseCListResponseEmail(self,jobResponse):
-        #self.log.show("taking in xml %s and html %s" % (jobResponse['tree'],jobResponse['html']), "cyan")                
-        desc = self.parseCListDesc(jobResponse)
-        # self.log.show("retrieved desc: \"%s\"" % desc, "cyan")        
-        # Pull email from description or fetch the anonymous email if needed
-        if "@" in desc:
-            # split = desc.split(" ")
-            # email = [w for w in split if "@" in w]
-            email = self.scanForEmail(desc)
-            self.log.log("...in parseCListResponseEmail() desc loop", "blue")
-        if "@" in desc and bool([True for c in dots if c in jobResponse['html']]):
-            # print("in html loop...")
-            # expression = re.compile(r"(\S+)@(\S+)")
-            # result = expression.findall(html)
-            # print("result: %s" % result)
-            
-            self.log.log("...email from html: %s" % (res), "cyan")
-            email = self.scanForEmail(html)            
-        else:
-            self.log.log("...in parseCListResponseEmail() else loop...", "blue")
-            email = None
-        self.log.log("...returning email [%s]" % email, "cyan")           
-        return email 
     
-    def buildCraigsListJobResult(self,titleDict):
+    def parseCListResponseEmail(self, jobResponse):
+        desc = self.parseCListDesc(jobResponse)
+        email = JobOpportunity().scanTextForEmail(desc) 
+        if (email):
+            self.log.log("...returning email [%s]" % email, "cyan") 
+        else:
+            self.log.log("...did not find an email in desc.", "cyan")  
+            email = "" 
+        return email
+
+    def buildCraigsListJobOpportunity(self,titleDict):
         """Takes in an dict with keys [title, url] of a 
-        Craig's List Job Listing and returns a dictionary
-        returns {
-            'title':title of job listing, 
-            'url':url for job listing, 
-            'timeStamp':timeStamp, 
-            'prettyTimeStamp':prettytimeStamp, 
-            'email':email to respond to,
-            'desc':description of job,
-            }
+        Craig's List Job Listing and returns a JobOpportunity object
+        returns JobOpportunity
+
+          .title: Title of job posting.  
+          .url: Url where job was collected.  
+          .timestamp: Time that job was collected in seconds from epoch.  
+          .prettyTimeStamp: Formatted timestamp. 'May222018_19:59:38'   
+          .email: Email to respond to job opportunity.  
+          .desc: Description of job.  
+          .tags: Meta tags generated from job data.            
         """
         self.log.log("...building job result.", "cyan")
         title= titleDict['title']
         url = titleDict['url']
         timeStamp = time.time()
-        prettyTimeStamp = self.log.now()
         desc = self.parseCListDesc(titleDict['response'])       
-        email = self.parseCListResponseEmail(titleDict['response'])
 
-        return {
+        jobOpp = JobOpportunity()
+        jobOpp.config({
             'title':title, 
             'url':url, 
-            'timeStamp':timeStamp, 
-            'prettyTimeStamp':prettyTimeStamp, 
-            'email':email,
-            'desc':desc,
-            'timeToCrawl':None
-            }
+            'timestamp':timeStamp,
+            'desc':desc
+            })
+        return jobOpp
 
 
     def refreshTitlesData(self, config):
@@ -94,10 +78,10 @@ class CListJobCrawler(JobCrawler):
         # Crawl clist url for titles.
         jobData = self.crawl(
             self.config['baseUrl'])['tree'].xpath(self.config['jobQuery'])
-        self.addLog('...crawl() yielded (%s) links.' % len(jobData),"cyan")
+        self.log.log('...crawl() yielded (%s) links.' % len(jobData),"cyan")
         # Convert crawl data to lod.
         titles = [{'title':el.text_content(),'url':el.get('href')} for el in jobData] 
-        self.addLog('...saving %s titles.' % len(titles), "cyan")
+        self.log.log('...saving %s titles.' % len(titles), "cyan")
         # Write to json file.
         # self.saveToJsonFile(self.config['jobTitlesFile'], titles)
         self.saveTitles(titles)
@@ -111,11 +95,11 @@ class CListJobCrawler(JobCrawler):
         self.log.log("..refreshing jobs file", "cyan")        
         jobs = []
         for e,t in enumerate(titles):
-            job = {}
+            job = JobOpportunity()
             crawlstart = time.time()
             t['response'] = self.crawl(t['url'])
-            job = self.buildCraigsListJobResult(t)       
-            job['timeToCrawl'] = self.log.elapsed(crawlstart)
+            job = self.buildCraigsListJobOpportunity(t)       
+            job.timeToCrawl = self.log.elapsed(crawlstart)
             self.log.log(
                 "...time to crawl, process and save match %s [%s]" % (
                     e,self.log.elapsed(crawlstart)),"cyan")
@@ -123,7 +107,7 @@ class CListJobCrawler(JobCrawler):
             if n:
                 if e>n: break
         self.log.todo("Parse email from listing", False)
-        self.log.showLod("Jobs",jobs,len(jobs))
+        self.log.showLod("Jobs",jobs,10)
         self.saveJobs(jobs)
 
     def clickButton(self):
@@ -142,7 +126,7 @@ class CListJobCrawler(JobCrawler):
         start = time.time()
         self.log.todo("Set up git hub vc.",True)
         # if we should crawl...
-        if False:
+        if True:
             self.refreshTitlesData(config)
             self.log.todo("Date stamp crawl jsons.")
             self.log.todo("Crawl only if file older than a specified date.")
@@ -154,7 +138,7 @@ class CListJobCrawler(JobCrawler):
         # Search data for matches to searchTerms.
         self.log.todo("Code deep search method.")
         self.log.log("searching with searchTerms %s" % (searchTerms), "white")        
-        matches = self.search([t['title'] for t in titles],searchTerms)
+        matches = self.searchList([t['title'] for t in titles],searchTerms)
         self.log.log('Found %s matches from %s potential.' % (len(matches),len(titles)), "white")
         self.log.log("...matches: %s" % matches, "cyan")
         self.log.showList("...matches resulting from search",matches, 5)
@@ -178,7 +162,8 @@ class CListJobCrawler(JobCrawler):
                 self.log.log('"...(+)found for "%s" in matches.' % (job['title']), "cyan")
                 results.append(job)
             else:
-                self.log.log('...(-)did not find "%s" in matches.' % (job['title']), "cyan")                
+                pass
+                # self.log.log('...(-)did not find "%s" in matches.' % (job['title']), "cyan")                
         self.log.log('Matched %s jobs against matches.' % len(results), "white")
         
         self.log.log(
