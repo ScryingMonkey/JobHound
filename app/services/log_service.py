@@ -7,7 +7,7 @@ class LogService():
     def __init__(self, pathToLogFile="c:/push/log_unchristened.txt", logLevel=5):
         self.pathToLogFile = os.path.normpath(pathToLogFile)
         self.logLevel = logLevel
-        self.LOG = ""
+        self.LOG = ["\n\n"]
         self.todos = []
 
         method_file = sys._getframe(1).f_code.co_filename
@@ -24,9 +24,9 @@ class LogService():
         a formatted todo to the central TODO list.
         """
         if b:
-            todo = colored.green("[X] %s\n" % todo)
+            todo = colored.green("[X] %s" % todo)
         else:
-            todo = colored.yellow("[ ] %s\n" % todo)
+            todo = colored.yellow("[ ] %s" % todo)
         self.todos.append(todo)
     
     def logTodos(self):
@@ -34,9 +34,9 @@ class LogService():
         todo list.
         """
         method_file = sys._getframe(1).f_code.co_filename
-        self.LOG += colored.white("\nTODOS for [%s]: \n" % method_file)
+        self.LOG.append(colored.white("\nTODOS for [%s]:" % method_file))
         for t in self.todos:
-            self.LOG += "  %s" % t
+            self.LOG.append("  %s" % t)
             # res += t
         self.todos = []
         # self.log(res)
@@ -64,10 +64,10 @@ class LogService():
         method_file = sys._getframe(1).f_code.co_filename
         self.startTime = time.time()
         
-        self.log('"\n\n[%s] Starting Log "%s" at logLevel %s.\n\n' % (
+        self.log('"\n[%s] Starting Log "%s" at logLevel %s.\n' % (
             self.now(),self.pathToLogFile,self.logLevel), "white")
         if note:
-            self.log(str(note))
+            self.log(str(note), "white")
 
     def tlog(self, msg, color="white"):
         """Takes in a msg<string> and a color<string> and 
@@ -80,9 +80,28 @@ class LogService():
           "cyan":0:Secondary logs
           "blue":-1:Method calls
         """
-        self.log("\n[%s] %s" % (self.now(), msg), color)
+        self.log("[%s] %s" % (self.now(), msg), color)
+    def color(self,msg,color="white"):        
+        """Takes in a msg<str> and a color<str> and returns
+        a tuple (priority <int>, colored msg <str>).
+          "red":5:Errors
+          "yellow":3:Warnings
+          "green":2:Good results
+          "white":1:Primary logs
+          "cyan":0:Secondary logs
+          "blue":-1:Method calls
+        """
+        cmap = {
+            "red":(5,lambda x: colored.red("!!!> ERROR: %s" % str(x))),
+            "yellow":(3,lambda x: colored.yellow("!> Warning: %s" % str(x))),
+            "green":(2,lambda x: colored.green("[HURRAY!] %s" % str(x))),
+            "white":(1,lambda x: colored.white("  %s" % str(x))),
+            "cyan":(0,lambda x: colored.cyan("  ..%s" % str(x))),
+            "blue":(-1,lambda x: colored.blue(">%s" % str(x)))
+        }
+        return (cmap[color][0],cmap[color][1](msg))
 
-    def log(self, msg, color="white"):
+    def log(self, msg, color):
         """Takes a msg<string> and a color<string> and 
         adds a formatted version of txt in color to the 
         central LOG var if color > logLevel.
@@ -98,37 +117,44 @@ class LogService():
         method_line = sys._getframe(1).f_lineno
         method_args = sys._getframe(1).f_locals.keys()
         try:
-            if color == "red" and self.logLevel <= 5:       
-                self.LOG += colored.red("%s \n" % (str(msg)))
-            elif color == "yellow" and self.logLevel <= 3:  
-                self.LOG += colored.yellow("%s \n" % (str(msg)))
-            elif color == "green" and self.logLevel <= 2:   
-                self.LOG += colored.green("%s \n" % (str(msg)))
-            elif color == "white" and self.logLevel <= 1:   
-                self.LOG += colored.white("%s \n" % (str(msg)))
-            elif color == "cyan" and self.logLevel <= 0:    
-                self.LOG += colored.cyan("%s \n" % (str(msg)))
-            elif color == "blue" and self.logLevel <= -1:    
-                self.LOG += colored.blue("%s \n" % (str(msg)))
-            else: pass
-
+            nmsg = self.color(msg,color)
+            if(nmsg[0] <= self.logLevel):
+                self.LOG.append(nmsg[1])
             if(self.logLevel <= -1): 
-                self.LOG += colored.blue("> %s(%s) \n" % (method_name,method_args))
+                self.LOG.append(colored.blue("> %s(%s)" % (
+                    method_name,method_args)))
+        except UnicodeEncodeError:
+            print(colored.red("\n>> ERROR<UnicodeEncodeError>: Log failure.  Dumping."))
+            if(msg):
+                print(colored.red("    len(msg)=%s; len(LOG)=%s;" % (
+                    len(msg),len(self.LOG))))
+            else:
+                print(colored.red("    msg is null."))
+            print(colored.red("    <%s>" % (
+                method_file)))
+            print(colored.red("    %s(%s): line %s>" % (
+                method_name,method_args,method_line)))
+            self.dump()
 
         except IOError, KeyError:
-            self.LOG += colored.red(
+            self.LOG.append(colored.red(
                 ">> ERROR: Failed to log. <%s,%s(%s): line %s>" % (
-                                method_file,method_name,method_args,method_line))
+                    method_file,method_name,method_args,method_line)))
+            self.LOG.append(colored.red(
+                "     msg: %s\n    color:%s" % (
+                    msg,color)))
 
     def dump(self):
-        """Clears central LOG var and returns it's contents.
+        """Clears central LOG var and prints it's contents to terminal.
         """
-        #self.LOG += "\n[%s] dump logs. \n\n" % self.now()
-        self.tlog("Dumping active logs. Logs saved to %s\n\n" % (self.pathToLogFile), "white")
-        dump = self.LOG
-        self.LOG = None
+        self.tlog(
+            "Dumping active logs. Logs saved to %s" % (
+                self.pathToLogFile), "white")
+        self.logTodos()        
+        for line in self.LOG:
+            print(line)
+        self.LOG = []
         # self.__del__()
-        return dump
     
     def now(self):
         return str(time.strftime("%b%d%Y_%H:%M:%S"))
@@ -155,22 +181,16 @@ class LogService():
           "cyan":0:Secondary logs
           "blue":-1:Method calls
         """
-        level = {"red":5, "yellow":3, "green":2, "white":1, "cyan":0, "blue":-1}
-        if self.logLevel <= level[color.lower()]:
-            if color == "red":       
-                print(colored.red("!!!> ERROR: %s" % txt))
-            elif color == "yellow":  
-                print(colored.yellow("!> Warning: %s" % txt))
-            elif color == "green":   
-                print(colored.green("%s" % txt))
-            elif color == "white":   
-                print(colored.white("   %s" % txt))
-            elif color == "cyan":    
-                print(colored.cyan("   ...%s" % txt))
-            elif color == "blue":    
-                print(colored.blue(">%s" % txt))
-            else: print(txt)
-    
+        try:
+            nmsg = self.color(msg,color)
+            if(nmsg[0] <= self.logLevel):
+                print(nmsg[1])
+            if(self.logLevel <= -1): 
+                self.LOG.append(colored.blue("> %s(%s)" % (
+                    method_name,method_args)))
+        except UnicodeEncodeError:
+            print "Caught exception in LogService().show()!"
+            
     # SHOW METHODS ===========================
     def showHtmlElements(self,name,elList,n=3):
         res += "Showing %s %s of [%s]..................... \n" % (n,type(elList[0]),name)
@@ -188,12 +208,13 @@ class LogService():
         optional int(n=5) for how many rows to show.  
         Prints n rows of the list to terminal.
         """
-        res = "Showing first %s %s of [%s].....................\n" % (n,type(showList[0]),name)
+        self.log("Showing first %s %s of [%s].....................\n" % (
+            n,type(showList[0]),name), "cyan")
         for i,x in enumerate(showList):
-            res += "[%s] %s\n" % (i,x)
+            self.log("[%s] %s\n" % (i,x), "cyan")
             if i+1 >= n: break
-        res += "... continues for %s items.\n" % len(showList)
-        self.log(res, "cyan")
+        self.log("... continues for %s items.\n" % len(showList), "cyan")
+        # self.log(res, "cyan")
 
     def showLod(self, name, showLod, n=5):
         """Takes in a name (text description), lod, and an 
@@ -202,7 +223,7 @@ class LogService():
         """
         if len(showLod) < 1 or type(showLod) != list: 
             res = "...cannot show lod: [%s]" % showLod
-            self.log(res)
+            self.log(res, "cyan")
             return res
         else:
             res = "\n"
@@ -210,7 +231,7 @@ class LogService():
             res += "[\n"
             keys = showLod[0].keys()
             for i,d in enumerate(showLod):
-                d = dict(d)
+                # d = dict(d)
                 # res += 'lod[%s]\n' % i  
                 res += "    {\n"                       
                 for k in keys:

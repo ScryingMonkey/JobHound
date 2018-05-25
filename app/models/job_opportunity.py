@@ -12,7 +12,7 @@ import time
 from textblob import TextBlob
 # from app.doers.job_tagger import JobTagger
 
-class JobOpportunity:
+class JobOpportunity():
     """Represents an individual job position and it's relevant details.  
       
     .title: Title of job posting.  
@@ -93,10 +93,20 @@ class JobOpportunity:
         tags = [t[0] for t in blob.tags if t[1] not in trash]     
         return tags
     def __iter__(self):
-            yield 'title', self.title
-            yield 'url', self.url
-            yield 'timestamp', self.timestamp
-            yield 'prettyTimeStamp', self.prettyTimeStamp
-            yield 'email', self.email
-            yield 'desc', self.desc
-            yield 'tags', self.tags
+        yield 'title', self.title
+        yield 'url', self.url
+        yield 'timestamp', self.timestamp
+        yield 'prettyTimeStamp', self.prettyTimeStamp
+        yield 'email', self.email
+        yield 'desc', self.desc
+        yield 'tags', self.tags
+    def toDict(self):
+        return {
+            'title': self.title,
+            'url': self.url,
+            'timestamp': self.timestamp,
+            'prettyTimeStamp': self.prettyTimeStamp,
+            'email': self.email,
+            'desc': self.desc,
+            'tags': self.tags
+        }

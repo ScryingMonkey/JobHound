@@ -88,7 +88,7 @@ class CListJobCrawler(JobCrawler):
         self.log.log(
             "...time to crawl, process and save titles [%s]." % (
                 self.log.elapsed(crawlstart)), "cyan")
-    def refreshJobsData(self,titles,n=None):
+    def refreshJobsData(self, titles, n=None):
         """Takes in a list of titles and url pairs<dict>, 
         crawls urls and updates data in jobs database.
         """
@@ -107,8 +107,9 @@ class CListJobCrawler(JobCrawler):
             if n:
                 if e>n: break
         self.log.todo("Parse email from listing", False)
-        self.log.showLod("Jobs",jobs,10)
-        self.saveJobs(jobs)
+        jlod = self.convertLoJobOppsToLod(jobs)
+        self.log.showLod("Jobs",jlod,10)
+        self.saveJobs(jlod)
 
     def clickButton(self):
         driver = webdriver.Firefox()
@@ -126,7 +127,7 @@ class CListJobCrawler(JobCrawler):
         start = time.time()
         self.log.todo("Set up git hub vc.",True)
         # if we should crawl...
-        if True:
+        if False:
             self.refreshTitlesData(config)
             self.log.todo("Date stamp crawl jsons.")
             self.log.todo("Crawl only if file older than a specified date.")
@@ -141,25 +142,31 @@ class CListJobCrawler(JobCrawler):
         matches = self.searchList([t['title'] for t in titles],searchTerms)
         self.log.log('Found %s matches from %s potential.' % (len(matches),len(titles)), "white")
         self.log.log("...matches: %s" % matches, "cyan")
-        self.log.showList("...matches resulting from search",matches, 5)
+        self.log.showList("...matches resulting from search",matches)
 
         # Crawl urls of matching filtered matches and build job results
         self.log.todo("crawl urls of matching filtered matches and build job results.", True)
         self.log.todo("write job results to file.", True)
         self.log.todo("job results include the email to send response to.")  
         # if we should crawl      
-        if True:
-            self.refreshJobsData(titles,len(titles))
+        if False:
+            self.refreshJobsData(titles,10)
         self.log.log("Retrieving jobs from file.", "white")
-        jobs = self.readFromJsonFile(self.config['jobFile'])['data']
+        jobJsons = self.readFromJsonFile(self.config['jobFile'])['data']
+        jobs = []
+        for jobJson in jobJsons:
+            j = JobOpportunity()
+            j.config(jobJson)
+            jobs.append(j)
+
         self.log.log("Retrieved %s jobs from file." % len(jobs), "white")    
 
         results = []
         self.log.log('Matching jobs against matches.', "white")
         self.log.showList("Matches",matches, len(matches))
         for job in jobs:
-            if job['title'] in matches:
-                self.log.log('"...(+)found for "%s" in matches.' % (job['title']), "cyan")
+            if job.title in matches:
+                self.log.log('"...(+)found for "%s" in matches.' % (job.title), "cyan")
                 results.append(job)
             else:
                 pass
@@ -169,7 +176,7 @@ class CListJobCrawler(JobCrawler):
         self.log.log(
             'CListJobCrawler.crawlCraigsList() yielded [%s] results in %s seconds.' % (
                 len(results), self.log.elapsed(start)), "white") 
-        self.log.showLod("results of clist crawl",results, 5)        
+        self.log.showLod("results of clist crawl",self.convertLoJobOppsToLod(results), 5)        
         
         # for k in results[0].keys():
             # assert [len(d[k]) > 0 for d in self.results]

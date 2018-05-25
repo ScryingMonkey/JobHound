@@ -10,7 +10,7 @@ class TestCListCrawler(object):
         'jobFile': "CListJobDetails_NH.txt",
         'jobQuery': '//a[@class="result-title hdrlnk"]',
         'logPath': "c:/push/log_testing_TestCListCrawler.txt",
-        'logLevel':2
+        'logLevel':0
         }
 
     cljc = CListJobCrawler(TEST_CLIST_CONFIG)
@@ -56,5 +56,4 @@ class TestCListCrawler(object):
         assert len(self.results) == sum(["@" in d['email'] for d in self.results])
     
     def test_dumpLog(self):
-        self.cljc.log.logTodos()
-        print(self.cljc.log.dump())
+        self.cljc.log.dump()

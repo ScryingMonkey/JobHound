@@ -79,11 +79,13 @@ class JobCrawler:
              "cyan")
         self.saveToJsonFile(self.config['jobTitlesFile'], lod)
 
+    def convertLoJobOppsToLod(self, LoJobbOpps):
+        return [jo.toDict() for jo in LoJobbOpps]
+
     def saveJobs(self, lod):
         self.log.log(
             "...saving results of length %s to %s." % (
-            len(lod),self.config['jobFile']),
-            "cyan")
+            len(lod),self.config['jobFile']),"cyan")
         self.saveToJsonFile(self.config['jobFile'], lod)
 
     def saveToJsonFile(self, fileName, lod):
@@ -99,7 +101,7 @@ class JobCrawler:
         """
         self.log.log(
             "...saving lod with length [%s] to file [%s]." % (
-                len(lod),fileName))
+                len(lod),fileName), "white")
         outfile.append(json.dumps(lod))
 
     def readFromJsonFile(self, fileName):
