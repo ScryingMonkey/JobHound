@@ -70,14 +70,14 @@ class TestJobCrawler(object):
     def test_searchOnDummyData(self):
         dummyData = ['Paving Specialist', 'Health Services Specialist', 'Web Developer', 'Day Laborer', 'REalestate developer']
         dummySearchTerms = ['Developer', 'Coder']
-        matches = self.jc.search(dummyData, dummySearchTerms)
+        matches = self.jc.searchList(dummyData, dummySearchTerms)
         assert len(matches) == 2
         assert matches == ['Web Developer', 'REalestate developer']
     
     def test_searchTimeOnDummyData(self):
         dummyData = ['Paving Specialist', 'Health Services Specialist', 'Web Developer', 'Day Laborer', 'REalestate developer']
         dummySearchTerms = ['Developer', 'Coder']
-        t = "JobCrawler().search(%s,%s)" % (dummyData,dummySearchTerms)
+        t = "JobCrawler().searchList(%s,%s)" % (dummyData,dummySearchTerms)
         timeElapsed = timeit.timeit(
             t, setup="from app.doers import JobCrawler", number=1)
         assert timeElapsed < 1

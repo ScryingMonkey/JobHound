@@ -23,14 +23,20 @@ class JobOpportunity():
     .desc: Description of job.  
     .tags: Meta tags generated from job data.      
     """
-    def __init__(self):
-        self.title = ""
-        self.url = ""
-        self.timestamp = ""
-        self.prettyTimeStamp = ""
-        self.email = ""
-        self.desc = ""
-        self.tags = []
+    def __init__(self, config=None):
+        if config:
+            self.config(config)
+        else:
+            self.config({
+                'title': None,
+                'url': None,
+                'timestamp': None,
+                'prettyTimeStamp': None,
+                'email': None,
+                'desc': None,
+                'tags': []
+            })
+        
 
     def config(self,d):
         """Takes a dict and sets fields on JobOpportunity.

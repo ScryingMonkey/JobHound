@@ -17,7 +17,9 @@ class LogService():
         self.startLoggingService(method_file)
         self.startTime = None       
 
-    # TODO METHODS ==========================================
+###################################################
+##   Todo METHODS                             
+###################################################
     def todo(self,todo,b=False):
         """Takes in a todo<string> and an optional b<boolean>
         indicating whether the todo has been completed.  Adds 
@@ -41,7 +43,9 @@ class LogService():
         self.todos = []
         # self.log(res)
 
-    # Logging METHODS ==========================================
+###################################################
+##   Logging METHODS                             
+###################################################
     def startLoggingService(self, callingFile):
         """Prints a log message describing initial
         logging service conditions.
@@ -68,19 +72,27 @@ class LogService():
             self.now(),self.pathToLogFile,self.logLevel), "white")
         if note:
             self.log(str(note), "white")
-
-    def tlog(self, msg, color="white"):
-        """Takes in a msg<string> and a color<string> and 
-        adds a timestamped and formatted version of msg to
-        central LOG var if color > logLevel.
-          "red":5:Errors
-          "yellow":3:Warnings
-          "green":2:Good results
-          "white":1:Primary logs
-          "cyan":0:Secondary logs
-          "blue":-1:Method calls
+    def dump(self):
+        """Clears central LOG var and prints it's contents to terminal.
         """
-        self.log("[%s] %s" % (self.now(), msg), color)
+        self.tlog(
+            "Dumping active logs. Logs saved to %s" % (
+                self.pathToLogFile), "white")
+        self.logTodos()        
+        for line in self.LOG:
+            print(line)
+        self.LOG = []
+    def now(self):
+        return str(time.strftime("%b%d%Y_%H:%M:%S"))
+    def elapsed(self, startTime):
+        """Takes in a start time and Returns the time 
+        between startTime and now.
+        """
+        t = time.time() - startTime
+        # self.addLog( 
+        #     "---elapsed [%s ] for method: <%s>%s" % (
+        #         str(t),sys._getframe(1).f_code.co_name, methodName) )
+        return t
     def color(self,msg,color="white"):        
         """Takes in a msg<str> and a color<str> and returns
         a tuple (priority <int>, colored msg <str>).
@@ -95,12 +107,11 @@ class LogService():
             "red":(5,lambda x: colored.red("!!!> ERROR: %s" % str(x))),
             "yellow":(3,lambda x: colored.yellow("!> Warning: %s" % str(x))),
             "green":(2,lambda x: colored.green("[HURRAY!] %s" % str(x))),
-            "white":(1,lambda x: colored.white("  %s" % str(x))),
+            "white":(1,lambda x: colored.white("%s" % str(x))),
             "cyan":(0,lambda x: colored.cyan("  ..%s" % str(x))),
             "blue":(-1,lambda x: colored.blue(">%s" % str(x)))
         }
         return (cmap[color][0],cmap[color][1](msg))
-
     def log(self, msg, color):
         """Takes a msg<string> and a color<string> and 
         adds a formatted version of txt in color to the 
@@ -118,7 +129,7 @@ class LogService():
         method_args = sys._getframe(1).f_locals.keys()
         try:
             nmsg = self.color(msg,color)
-            if(nmsg[0] <= self.logLevel):
+            if(self.logLevel <= nmsg[0]):
                 self.LOG.append(nmsg[1])
             if(self.logLevel <= -1): 
                 self.LOG.append(colored.blue("> %s(%s)" % (
@@ -130,45 +141,28 @@ class LogService():
                     len(msg),len(self.LOG))))
             else:
                 print(colored.red("    msg is null."))
-            print(colored.red("    <%s>" % (
-                method_file)))
+            print(colored.red("    <%s>" % (method_file)))
             print(colored.red("    %s(%s): line %s>" % (
                 method_name,method_args,method_line)))
             self.dump()
-
         except IOError, KeyError:
             self.LOG.append(colored.red(
                 ">> ERROR: Failed to log. <%s,%s(%s): line %s>" % (
                     method_file,method_name,method_args,method_line)))
             self.LOG.append(colored.red(
-                "     msg: %s\n    color:%s" % (
-                    msg,color)))
-
-    def dump(self):
-        """Clears central LOG var and prints it's contents to terminal.
+                "     msg: %s\n    color:%s" % (msg,color)))
+    def tlog(self, msg, color="white"):
+        """Takes in a msg<string> and a color<string> and 
+        adds a timestamped and formatted version of msg to
+        central LOG var if color > logLevel.
+          "red":5:Errors
+          "yellow":3:Warnings
+          "green":2:Good results
+          "white":1:Primary logs
+          "cyan":0:Secondary logs
+          "blue":-1:Method calls
         """
-        self.tlog(
-            "Dumping active logs. Logs saved to %s" % (
-                self.pathToLogFile), "white")
-        self.logTodos()        
-        for line in self.LOG:
-            print(line)
-        self.LOG = []
-        # self.__del__()
-    
-    def now(self):
-        return str(time.strftime("%b%d%Y_%H:%M:%S"))
-
-    def elapsed(self, startTime):
-        """Takes in a start time and Returns the time 
-        between startTime and now.
-        """
-        t = time.time() - startTime
-        # self.addLog( 
-        #     "---elapsed [%s ] for method: <%s>%s" % (
-        #         str(t),sys._getframe(1).f_code.co_name, methodName) )
-        return t
-
+        self.log("[%s] %s" % (self.now(), msg), color)
     def show(self,txt, color):
         """ Takes in a string(txt) and a color (red,
         yellow, green, white, cyan, or blue) and prints
@@ -190,8 +184,10 @@ class LogService():
                     method_name,method_args)))
         except UnicodeEncodeError:
             print "Caught exception in LogService().show()!"
-            
-    # SHOW METHODS ===========================
+
+###################################################
+##   OBJECT METHODS                             
+###################################################
     def showHtmlElements(self,name,elList,n=3):
         res += "Showing %s %s of [%s]..................... \n" % (n,type(elList[0]),name)
         res += "...element keys: " + ", ".join(elList[0].keys()) + " \n"
